@@ -1,0 +1,36 @@
+package com.example.demo.model;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(description = "Paginated response wrapper")
+public class PagedResponse<T> {
+    
+    @Schema(description = "List of items in the current page")
+    private List<T> content;
+    
+    @Schema(description = "Current page number (0-indexed)", example = "0")
+    private int pageNumber;
+    
+    @Schema(description = "Size of the page", example = "10")
+    private int pageSize;
+    
+    @Schema(description = "Total number of elements", example = "100")
+    private long totalElements;
+    
+    @Schema(description = "Total number of pages", example = "10")
+    private int totalPages;
+    
+    @Schema(description = "Indicates if this is the last page", example = "false")
+    private boolean last;
+    
+    @Schema(description = "Indicates if this is the first page", example = "true")
+    private boolean first;
+}
