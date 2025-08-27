@@ -12,11 +12,13 @@ This is a sample Spring Boot 3.3.5 application demonstrating the integration of 
 - Paginated responses
 - Health check endpoints
 - Lombok for reduced boilerplate code
+- Support for both Maven and Gradle with Kotlin DSL
 
 ## Prerequisites
 
 - Java 17 or higher
-- Maven 3.6 or higher
+- Maven 3.6 or higher (for Maven build)
+- Gradle 8.0 or higher (for Gradle build) - or use the included wrapper
 
 ## Project Structure
 
@@ -43,7 +45,17 @@ spring-boot-swagger-example/
 │   │       ├── application.properties
 │   │       └── application.yml
 │   └── test/
-├── pom.xml
+├── gradle/
+│   └── wrapper/
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── build.gradle.kts      # Gradle Kotlin DSL build file
+├── settings.gradle.kts   # Gradle settings
+├── gradle.properties     # Gradle properties
+├── gradlew              # Gradle wrapper script (Unix)
+├── gradlew.bat          # Gradle wrapper script (Windows)
+├── pom.xml              # Maven build file
+├── run.sh               # Run script
 └── README.md
 ```
 
@@ -57,20 +69,43 @@ cd /workspace/spring-boot-swagger-example
 
 ### 2. Build the project
 
+#### Using Maven:
 ```bash
 mvn clean install
 ```
 
+#### Using Gradle:
+```bash
+./gradlew clean build
+```
+
 ### 3. Run the application
 
+#### Using Maven:
 ```bash
 mvn spring-boot:run
 ```
 
-Or run the JAR file:
+#### Using Gradle:
+```bash
+./gradlew bootRun
+```
 
+#### Using the run script (auto-detects Maven or Gradle):
+```bash
+./run.sh
+```
+
+#### Or run the JAR file directly:
+
+Maven build:
 ```bash
 java -jar target/spring-boot-swagger-example-0.0.1-SNAPSHOT.jar
+```
+
+Gradle build:
+```bash
+java -jar build/libs/spring-boot-swagger-example.jar
 ```
 
 ### 4. Access the application
@@ -182,6 +217,49 @@ Main dependencies used in this project:
 - `lombok` - Reduce boilerplate code
 - `spring-boot-devtools` - Development tools
 
+## Build Tool Specific Commands
+
+### Gradle Commands
+
+```bash
+# View all available tasks
+./gradlew tasks
+
+# Run tests
+./gradlew test
+
+# Build without tests
+./gradlew build -x test
+
+# Clean build artifacts
+./gradlew clean
+
+# View project dependencies
+./gradlew dependencies
+
+# View project information
+./gradlew info
+
+# Run with debug output
+./gradlew bootRun --debug
+
+# Run with specific profile
+./gradlew bootRun --args='--spring.profiles.active=dev'
+```
+
+### Maven Commands
+
+```bash
+# View project dependencies
+mvn dependency:tree
+
+# Build without tests
+mvn clean package -DskipTests
+
+# Run with specific profile
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
 ## Troubleshooting
 
 ### Common Issues
@@ -194,6 +272,16 @@ Main dependencies used in this project:
 2. **Swagger UI not loading**: Ensure springdoc dependencies are correctly added and the application is running
 
 3. **Validation not working**: Make sure `spring-boot-starter-validation` is included in dependencies
+
+4. **Gradle build fails**: Try cleaning the Gradle cache:
+   ```bash
+   ./gradlew clean build --refresh-dependencies
+   ```
+
+5. **Maven build fails**: Try cleaning the Maven repository:
+   ```bash
+   mvn clean install -U
+   ```
 
 ## License
 

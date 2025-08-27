@@ -21,38 +21,80 @@ fi
 echo "Java version: $(java -version 2>&1 | head -n 1)"
 echo ""
 
-# Check if Maven is installed
-if ! command -v mvn &> /dev/null; then
-    echo "Maven is not installed. Using Maven Wrapper..."
-    MVN_CMD="./mvnw"
-    
-    # Download Maven wrapper if not exists
-    if [ ! -f "$MVN_CMD" ]; then
-        echo "Downloading Maven Wrapper..."
-        mvn -N io.takari:maven:wrapper
-    fi
+# Detect build tool preference (Gradle takes precedence if both exist)
+BUILD_TOOL=""
+JAR_PATH=""
+
+if [ -f "build.gradle.kts" ] || [ -f "build.gradle" ]; then
+    BUILD_TOOL="gradle"
+    JAR_PATH="build/libs/spring-boot-swagger-example.jar"
+elif [ -f "pom.xml" ]; then
+    BUILD_TOOL="maven"
+    JAR_PATH="target/spring-boot-swagger-example-0.0.1-SNAPSHOT.jar"
 else
-    MVN_CMD="mvn"
-    echo "Maven version: $(mvn -version | head -n 1)"
+    echo "Error: No build configuration found (pom.xml or build.gradle.kts)"
+    exit 1
 fi
 
+echo "Detected build tool: $BUILD_TOOL"
 echo ""
-echo "Building the application..."
-$MVN_CMD clean package -DskipTests
 
-if [ $? -eq 0 ]; then
+# Build and run based on detected tool
+if [ "$BUILD_TOOL" = "gradle" ]; then
+    # Check if Gradle wrapper exists
+    if [ -f "./gradlew" ]; then
+        GRADLE_CMD="./gradlew"
+        echo "Using Gradle Wrapper"
+    elif command -v gradle &> /dev/null; then
+        GRADLE_CMD="gradle"
+        echo "Gradle version: $(gradle -version | grep "Gradle" | head -n 1)"
+    else
+        echo "Error: Gradle is not installed and wrapper not found."
+        exit 1
+    fi
+    
+    echo ""
+    echo "Building the application with Gradle..."
+    $GRADLE_CMD clean build -x test
+    
+    BUILD_RESULT=$?
+    
+elif [ "$BUILD_TOOL" = "maven" ]; then
+    # Check if Maven is installed
+    if [ -f "./mvnw" ]; then
+        MVN_CMD="./mvnw"
+        echo "Using Maven Wrapper"
+    elif command -v mvn &> /dev/null; then
+        MVN_CMD="mvn"
+        echo "Maven version: $(mvn -version | head -n 1)"
+    else
+        echo "Error: Maven is not installed and wrapper not found."
+        exit 1
+    fi
+    
+    echo ""
+    echo "Building the application with Maven..."
+    $MVN_CMD clean package -DskipTests
+    
+    BUILD_RESULT=$?
+fi
+
+if [ $BUILD_RESULT -eq 0 ]; then
+    echo ""
+    echo "Build successful!"
     echo ""
     echo "Starting the application..."
     echo ""
     echo "The application will be available at:"
     echo "  - Swagger UI: http://localhost:8080/swagger-ui.html"
     echo "  - API Docs:   http://localhost:8080/v3/api-docs"
+    echo "  - Health:     http://localhost:8080/api/health"
     echo ""
     echo "Press Ctrl+C to stop the application."
     echo "========================================"
     echo ""
     
-    java -jar target/spring-boot-swagger-example-0.0.1-SNAPSHOT.jar
+    java -jar $JAR_PATH
 else
     echo "Build failed. Please check the error messages above."
     exit 1
