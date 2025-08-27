@@ -1,0 +1,54 @@
+# Alternative YAML configuration (you can use either properties or yml, not both)
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+
+spring:
+  application:
+    name: spring-boot-swagger-example
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+application:
+  version: 1.0.0
+
+logging:
+  level:
+    root: INFO
+    com.example.demo: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    filter: true
+    display-request-duration: true
+    deep-linking: true
+    disable-swagger-default-url: true
+    doc-expansion: none
+    default-models-expand-depth: 1
+    default-model-expand-depth: 1
+  show-actuator: true
+  packages-to-scan: com.example.demo.controller
+  paths-to-match: /api/**
